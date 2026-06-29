@@ -1,5 +1,6 @@
 import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { renderText } from '../utils/renderText';
 
 export default function BookReader({
   concept,
@@ -32,15 +33,24 @@ export default function BookReader({
         {/* Concept intro callout */}
         {concept.intro && (
           <div className="hater-alert">
-            <strong>Quick Take:</strong> {concept.intro}
+            <strong>Quick Take:</strong> {renderText(concept.intro)}
           </div>
         )}
 
         {/* Concept Text Body */}
         <div className="book-text" style={{ fontSize: `${fontSize}px` }}>
-          {concept.explanation.split('\n').map((line, i) => (
-            <p key={i} style={{ marginBottom: '0.5em' }}>{line}</p>
-          ))}
+          {concept.explanation.split('\n').map((line, i) => {
+            const numbered = line.match(/^(\d+)\.\s(.+)$/s);
+            if (numbered) {
+              return (
+                <div key={i} className="book-point">
+                  <span className="book-point-num">{numbered[1]}</span>
+                  <span className="book-point-text">{renderText(numbered[2])}</span>
+                </div>
+              );
+            }
+            return <p key={i} className="book-paragraph">{renderText(line)}</p>;
+          })}
         </div>
 
         {/* Code Snippet Box */}
@@ -62,18 +72,9 @@ export default function BookReader({
 
         {/* Gotchas rendered directly in the chapter itself */}
         {concept.gotchas && concept.gotchas.map((g, idx) => (
-          <div key={idx} style={{
-            backgroundColor: 'var(--accent-bg)',
-            borderLeft: '4px solid var(--danger-color)',
-            padding: '16px',
-            borderRadius: '6px',
-            marginTop: '24px',
-            marginBottom: '16px'
-          }}>
-            <div style={{ fontWeight: '700', color: 'var(--danger-color)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '15px', marginBottom: '8px' }}>
-              <span>⚠️ GOTCHA #{idx + 1}</span>
-            </div>
-            <div style={{ fontSize: '15px', color: 'var(--text-primary)', lineHeight: '1.6' }}>{g}</div>
+          <div key={idx} className="gotcha-inline">
+            <div className="gotcha-inline-header">⚠️ GOTCHA #{idx + 1}</div>
+            <div className="gotcha-inline-body">{renderText(g)}</div>
           </div>
         ))}
 

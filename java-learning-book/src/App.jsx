@@ -6,7 +6,7 @@ import LPAView from './views/LPAView';
 
 export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'sepia');
-  const [fontSize, setFontSize] = useState(() => parseInt(localStorage.getItem('fontSize'), 10) || 18);
+  const [fontSize, setFontSize] = useState(() => parseInt(localStorage.getItem('fontSize'), 10) || 16);
   const [completedConcepts, setCompletedConcepts] = useState(() => {
     try {
       const saved = localStorage.getItem('completedConcepts');
