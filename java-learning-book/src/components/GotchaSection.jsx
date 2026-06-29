@@ -1,4 +1,5 @@
 import React from 'react';
+import { renderText } from '../utils/renderText';
 
 export default function GotchaSection({ concept }) {
   if (!concept) return <p style={{ color: 'var(--text-secondary)' }}>Select a concept to view interview questions.</p>;
@@ -17,10 +18,10 @@ export default function GotchaSection({ concept }) {
               <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Q{idx + 1}</span>
             </div>
             <div className="interview-question">
-              {q.question}
+              {renderText(q.question)}
             </div>
             <div className="interview-answer">
-              <strong>Key Answer:</strong> {q.answer}
+              <strong>Key Answer:</strong> {renderText(q.answer)}
             </div>
           </div>
         ))

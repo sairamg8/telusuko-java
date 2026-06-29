@@ -21,8 +21,8 @@
   --font-sans: 'Space Grotesk', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
   
-  --font-size-base: 18px;
-  --line-height-base: 1.75;
+  --font-size-base: 16px;
+  --line-height-base: 1.7;
 }
 
 /* Charcoal Theme */
@@ -744,4 +744,41 @@ body {
   border-radius: 12px;
   border: 2px dashed var(--accent-color);
   margin-top: 20px;
+}
+
+/* Inline code spans inside explanation/gotcha text */
+.inline-code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background-color: var(--code-bg);
+  color: var(--text-accent);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  padding: 1px 5px;
+  white-space: nowrap;
+}
+
+/* Gotcha blocks rendered inline in BookReader */
+.gotcha-inline {
+  background-color: var(--accent-bg);
+  border-left: 4px solid var(--danger-color);
+  padding: 14px 16px;
+  border-radius: 6px;
+  margin-top: 20px;
+  margin-bottom: 12px;
+}
+
+.gotcha-inline-header {
+  font-weight: 700;
+  color: var(--danger-color);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.gotcha-inline-body {
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.6;
 }
