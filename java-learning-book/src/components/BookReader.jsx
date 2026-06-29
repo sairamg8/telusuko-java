@@ -39,9 +39,18 @@ export default function BookReader({
 
         {/* Concept Text Body */}
         <div className="book-text" style={{ fontSize: `${fontSize}px` }}>
-          {concept.explanation.split('\n').map((line, i) => (
-            <p key={i} style={{ marginBottom: '0.5em' }}>{renderText(line)}</p>
-          ))}
+          {concept.explanation.split('\n').map((line, i) => {
+            const numbered = line.match(/^(\d+)\.\s(.+)$/s);
+            if (numbered) {
+              return (
+                <div key={i} className="book-point">
+                  <span className="book-point-num">{numbered[1]}</span>
+                  <span className="book-point-text">{renderText(numbered[2])}</span>
+                </div>
+              );
+            }
+            return <p key={i} className="book-paragraph">{renderText(line)}</p>;
+          })}
         </div>
 
         {/* Code Snippet Box */}
