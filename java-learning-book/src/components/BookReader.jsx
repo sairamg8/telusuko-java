@@ -7,12 +7,13 @@ export default function BookReader({
   onNext,
   hasPrev,
   hasNext,
-  fontSize
+  fontSize,
+  totalConcepts
 }) {
   if (!concept) {
     return (
       <div className="book-reader" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: 'var(--text-secondary)' }}>Choose a Java concept from the left index to begin.</p>
+        <p style={{ color: 'var(--text-secondary)' }}>Choose a concept from the left index to begin.</p>
       </div>
     );
   }
@@ -22,29 +23,31 @@ export default function BookReader({
       <div className="book-page">
         {/* Chapter Subheader */}
         <div className="book-chapter-indicator">
-          Concept {concept.id} of 100
+          Concept {concept.id} of {totalConcepts}
         </div>
         
         {/* Main Title */}
         <h1 className="book-title">{concept.title}</h1>
 
-        {/* Eye-comfort Hater Introduction block */}
+        {/* Concept intro callout */}
         {concept.intro && (
           <div className="hater-alert">
-            <strong>Therapist Note:</strong> "{concept.intro}"
+            <strong>Quick Take:</strong> {concept.intro}
           </div>
         )}
 
         {/* Concept Text Body */}
         <div className="book-text" style={{ fontSize: `${fontSize}px` }}>
-          <p>{concept.explanation}</p>
+          {concept.explanation.split('\n').map((line, i) => (
+            <p key={i} style={{ marginBottom: '0.5em' }}>{line}</p>
+          ))}
         </div>
 
         {/* Code Snippet Box */}
         {concept.code && (
           <div className="code-block-wrapper">
             <div className="code-header">
-              <span>Java Snippet</span>
+              <span>Code Snippet</span>
               <button
                 className="btn"
                 style={{ fontSize: '11px', padding: '2px 8px' }}

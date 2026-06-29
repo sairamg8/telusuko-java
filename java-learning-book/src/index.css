@@ -1,5 +1,5 @@
 /* Custom fonts import */
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap');
 
 /* Default theme variables (Sepia is default for eye-comfort) */
 :root {
@@ -18,8 +18,8 @@
   --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   
   --font-serif: 'Merriweather', Georgia, serif;
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-mono: 'Fira Code', 'Courier New', monospace;
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
   
   --font-size-base: 18px;
   --line-height-base: 1.75;

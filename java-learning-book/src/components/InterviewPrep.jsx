@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Award, Check, HelpCircle, Eye, EyeOff } from 'lucide-react';
 
-export default function InterviewPrep({ currentConcept, completedConcepts, chapters }) {
+export default function InterviewPrep({ currentConcept, completedConcepts, chapters, currentLanguage = 'java' }) {
   const [revealed, setRevealed] = useState({});
   const [mastered, setMastered] = useState(() => {
     try {
@@ -54,7 +54,7 @@ export default function InterviewPrep({ currentConcept, completedConcepts, chapt
 
   // Other completed concepts in the same chapter
   currentChapter.concepts.forEach(c => {
-    if (c.id !== currentConcept.id && completedConcepts.includes(c.id) && c.interviewQuestions) {
+    if (c.id !== currentConcept.id && completedConcepts.includes(`${currentLanguage}_${c.id}`) && c.interviewQuestions) {
       c.interviewQuestions.forEach((q, idx) => {
         prepItems.push({
           id: `c${c.id}-q${idx}`,
