@@ -57,7 +57,7 @@ try (var reader = new BufferedReader(new FileReader("file.txt"))) {
   const memes = [
     {
       setup: "Why did the Java developer wear glasses?",
-      punchline: "Because they couldn't C#! (Get it? But wait, C# copied Java anyway)."
+      punchline: "Because they couldn't C#! (Get it? But C# copied Java anyway)."
     },
     {
       setup: "How many Java programmers does it take to change a light bulb?",
@@ -70,31 +70,40 @@ try (var reader = new BufferedReader(new FileReader("file.txt"))) {
   ];
 
   return (
-    <div className="haters-corner-container">
-      <div className="motivation-card">
+    <div className="haters-corner-container" style={{ width: '100%' }}>
+      <div className="motivation-card" style={{ marginBottom: '20px' }}>
         <div className="motivation-title">💸 The 50+ LPA Reality Check</div>
         <p className="motivation-quote">
           "Python is cute for scripting, and JavaScript is great for web buttons. But when a bank needs to process 100,000 transactions per second without losing a single cent, they write Java. Master Java memory layout, and companies will throw money at you."
         </p>
       </div>
 
-      <h3 style={{ fontSize: '15px', color: 'var(--text-primary)', borderBottom: '1.5px solid var(--border-color)', paddingBottom: '6px' }}>
-        ✂️ Verbose Legacy Java vs. Modern Java
+      <h3 style={{ fontSize: '15px', color: 'var(--text-primary)', borderBottom: '1.5px solid var(--border-color)', paddingBottom: '6px', marginBottom: '14px' }}>
+        ✂️ Boilerplate Legacy vs. Modern Java
       </h3>
       
       {translations.map((t, idx) => (
-        <div key={idx} className="translator-card">
-          <div className="translator-header">{t.title}</div>
-          <div className="translator-row">
-            <div>
+        <div key={idx} className="translator-card" style={{ marginBottom: '20px', padding: '12px' }}>
+          <div className="translator-header" style={{ fontSize: '13px', fontWeight: '700', marginBottom: '10px' }}>{t.title}</div>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {/* Legacy Block */}
+            <div style={{ width: '100%' }}>
               <div style={{ fontSize: '10px', color: 'var(--danger-color)', fontWeight: 'bold', marginBottom: '4px' }}>Legacy Code</div>
-              <pre className="translator-box" style={{ fontFamily: 'var(--font-mono)', overflow: 'auto', whiteSpace: 'pre' }}>
+              <pre className="translator-box" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', overflowX: 'auto', whiteSpace: 'pre', padding: '8px', margin: 0 }}>
                 {t.legacy}
               </pre>
             </div>
-            <div>
+            
+            {/* Downward Connector Arrow */}
+            <div style={{ textAlign: 'center', fontSize: '12px', color: 'var(--accent-color)', fontWeight: 'bold' }}>
+              ⬇️ Modern Evolution
+            </div>
+
+            {/* Modern Block */}
+            <div style={{ width: '100%' }}>
               <div style={{ fontSize: '10px', color: 'var(--success-color)', fontWeight: 'bold', marginBottom: '4px' }}>Modern Code (17+)</div>
-              <pre className="translator-box clean" style={{ fontFamily: 'var(--font-mono)', overflow: 'auto', whiteSpace: 'pre' }}>
+              <pre className="translator-box clean" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', overflowX: 'auto', whiteSpace: 'pre', padding: '8px', margin: 0 }}>
                 {t.modern}
               </pre>
             </div>
@@ -102,13 +111,13 @@ try (var reader = new BufferedReader(new FileReader("file.txt"))) {
         </div>
       ))}
 
-      <h3 style={{ fontSize: '15px', color: 'var(--text-primary)', borderBottom: '1.5px solid var(--border-color)', paddingBottom: '6px', marginTop: '16px' }}>
+      <h3 style={{ fontSize: '15px', color: 'var(--text-primary)', borderBottom: '1.5px solid var(--border-color)', paddingBottom: '6px', marginTop: '16px', marginBottom: '12px' }}>
         😆 Hater's Humor Therapy
       </h3>
 
       <div className="meme-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
-        <p style={{ fontWeight: 'bold', color: 'var(--accent-color)' }}>{memes[memeIndex].setup}</p>
-        <p style={{ fontStyle: 'italic', fontSize: '13px', color: 'var(--text-secondary)' }}>{memes[memeIndex].punchline}</p>
+        <p style={{ fontWeight: 'bold', color: 'var(--accent-color)', textAlign: 'center' }}>{memes[memeIndex].setup}</p>
+        <p style={{ fontStyle: 'italic', fontSize: '13px', color: 'var(--text-secondary)', textAlign: 'center' }}>{memes[memeIndex].punchline}</p>
         <button
           className="btn"
           onClick={() => setMemeIndex((memeIndex + 1) % memes.length)}

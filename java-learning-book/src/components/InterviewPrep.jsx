@@ -1,176 +1,190 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Award, Check, HelpCircle, Eye, EyeOff } from 'lucide-react';
 
-export default function InterviewPrep() {
-  const [selectedAnswers, setSelectedAnswers] = useState({});
-  const [submitted, setSubmitted] = useState(false);
-  const [score, setScore] = useState(0);
-
-  const questions = [
-    {
-      id: 1,
-      q: "1. String s1 = \"Hi\"; String s2 = \"Hi\"; String s3 = new String(\"Hi\"); What is s1 == s2 and s1 == s3?",
-      options: [
-        { key: "A", text: "true, true" },
-        { key: "B", text: "true, false" },
-        { key: "C", text: "false, true" },
-        { key: "D", text: "false, false" }
-      ],
-      ans: "B",
-      explain: "s1 and s2 both point to the same String Constant Pool object, so s1 == s2 is true. s3 creates a new object in the general heap, so s1 == s3 is false (different references)."
-    },
-    {
-      id: 2,
-      q: "2. If you override the equals() method in a Java class, what other method must you override to prevent HashMap bugs?",
-      options: [
-        { key: "A", text: "toString()" },
-        { key: "B", text: "clone()" },
-        { key: "C", text: "hashCode()" },
-        { key: "D", text: "getClass()" }
-      ],
-      ans: "C",
-      explain: "The equals/hashCode contract states that equal objects must have identical hash codes. If you override equals but not hashCode, HashMaps will fail to retrieve values mapped to your keys."
-    },
-    {
-      id: 3,
-      q: "3. What triggers a StackOverflowError in the JVM?",
-      options: [
-        { key: "A", text: "Creating too many objects in the heap" },
-        { key: "B", text: "Exceeding the call stack frame allocation limit (e.g., infinite recursion)" },
-        { key: "C", text: "Declaring static variables inside methods" },
-        { key: "D", text: "Failing to close database connections" }
-      ],
-      ans: "B",
-      explain: "Stack memory holds method frames. If methods keep calling methods recursively without returning, the call stack overflows. Objects running out of memory triggers OutOfMemoryError."
-    },
-    {
-      id: 4,
-      q: "4. Which of these is a Checked Exception (verified at compile-time)?",
-      options: [
-        { key: "A", text: "NullPointerException" },
-        { key: "B", text: "ArithmeticException" },
-        { key: "C", text: "IOException" },
-        { key: "D", text: "ClassCastException" }
-      ],
-      ans: "C",
-      explain: "IOException (and subclasses like FileNotFoundException) are checked exceptions. NullPointer, Arithmetic, and ClassCast are RuntimeExceptions (unchecked)."
-    },
-    {
-      id: 5,
-      q: "5. How does JVM resolve a polymorphic method call at runtime (comp.powerOn() where comp is Computer reference pointing to Mac)?",
-      options: [
-        { key: "A", text: "Runs the Computer's method (Static binding)" },
-        { key: "B", text: "Determines the actual class on the heap (Mac) and calls its overridden method via vtable" },
-        { key: "C", text: "Throws a RuntimeException because of variable typing conflict" },
-        { key: "D", text: "Checks compile-time flags and executes whichever is alphabetical" }
-      ],
-      ans: "B",
-      explain: "This is Dynamic Method Dispatch. The reference type decides which methods are compilation-accessible, but the runtime object's vtable determines which override executes."
+export default function InterviewPrep({ currentConcept, completedConcepts, chapters }) {
+  const [revealed, setRevealed] = useState({});
+  const [mastered, setMastered] = useState(() => {
+    try {
+      const saved = localStorage.getItem('masteredQuestions');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
     }
-  ];
+  });
 
-  const handleSelect = (qId, optionKey) => {
-    if (submitted) return;
-    setSelectedAnswers(prev => ({
-      ...prev,
-      [qId]: optionKey
-    }));
-  };
+  // Reset revealed states when active concept changes
+  useEffect(() => {
+    setRevealed({});
+  }, [currentConcept]);
 
-  const checkQuiz = () => {
-    let calculated = 0;
-    questions.forEach(q => {
-      if (selectedAnswers[q.id] === q.ans) {
-        calculated++;
-      }
+  // Persist mastered questions state
+  useEffect(() => {
+    localStorage.setItem('masteredQuestions', JSON.stringify(mastered));
+  }, [mastered]);
+
+  if (!currentConcept) {
+    return <p style={{ color: 'var(--text-secondary)' }}>Select a concept to start prep.</p>;
+  }
+
+  // Find current chapter
+  const currentChapter = chapters.find(ch =>
+    ch.concepts.some(c => c.id === currentConcept.id)
+  );
+
+  if (!currentChapter) return null;
+
+  // Gather questions:
+  // 1. Questions from the current active concept
+  // 2. Questions from previously completed concepts in the same chapter
+  const prepItems = [];
+
+  // Current concept questions
+  if (currentConcept.interviewQuestions) {
+    currentConcept.interviewQuestions.forEach((q, idx) => {
+      prepItems.push({
+        id: `c${currentConcept.id}-q${idx}`,
+        conceptId: currentConcept.id,
+        conceptTitle: currentConcept.title,
+        question: q.question,
+        answer: q.answer,
+        isCurrent: true
+      });
     });
-    setScore(calculated);
-    setSubmitted(true);
+  }
+
+  // Other completed concepts in the same chapter
+  currentChapter.concepts.forEach(c => {
+    if (c.id !== currentConcept.id && completedConcepts.includes(c.id) && c.interviewQuestions) {
+      c.interviewQuestions.forEach((q, idx) => {
+        prepItems.push({
+          id: `c${c.id}-q${idx}`,
+          conceptId: c.id,
+          conceptTitle: c.title,
+          question: q.question,
+          answer: q.answer,
+          isCurrent: false
+        });
+      });
+    }
+  });
+
+  const toggleReveal = (qId) => {
+    setRevealed(prev => ({ ...prev, [qId]: !prev[qId] }));
   };
 
-  const resetQuiz = () => {
-    setSelectedAnswers({});
-    setSubmitted(false);
-    setScore(0);
+  const toggleMastered = (qId) => {
+    setMastered(prev => ({ ...prev, [qId]: !prev[qId] }));
   };
 
   return (
     <div>
-      <h3 style={{ fontSize: '15px', color: 'var(--text-primary)', marginBottom: '12px', borderBottom: '1.5px solid var(--border-color)', paddingBottom: '6px' }}>
-        🏆 50+ LPA Competency Test
-      </h3>
-
-      {questions.map((q) => (
-        <div key={q.id} style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '14px', backgroundColor: 'var(--bg-page)', marginBottom: '16px' }}>
-          <p style={{ fontWeight: '600', fontSize: '13.5px', marginBottom: '10px', color: 'var(--text-primary)' }}>{q.q}</p>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            {q.options.map(opt => {
-              const isSelected = selectedAnswers[q.id] === opt.key;
-              const isCorrect = opt.key === q.ans;
-              let btnStyle = {
-                padding: '8px 12px',
-                borderRadius: '6px',
-                border: '1px solid var(--border-color)',
-                backgroundColor: 'transparent',
-                textAlign: 'left',
-                cursor: submitted ? 'default' : 'pointer',
-                fontSize: '12.5px',
-                color: 'var(--text-secondary)'
-              };
-
-              if (isSelected && !submitted) {
-                btnStyle.border = '2px solid var(--accent-color)';
-                btnStyle.backgroundColor = 'var(--accent-bg)';
-                btnStyle.color = 'var(--accent-color)';
-              } else if (submitted) {
-                if (isCorrect) {
-                  btnStyle.border = '2px solid var(--success-color)';
-                  btnStyle.backgroundColor = 'rgba(39, 174, 96, 0.15)';
-                  btnStyle.color = 'var(--success-color)';
-                } else if (isSelected) {
-                  btnStyle.border = '2px solid var(--danger-color)';
-                  btnStyle.backgroundColor = 'rgba(192, 57, 43, 0.15)';
-                  btnStyle.color = 'var(--danger-color)';
-                }
-              }
-
-              return (
-                <button
-                  key={opt.key}
-                  style={btnStyle}
-                  onClick={() => handleSelect(q.id, opt.key)}
-                >
-                  <span style={{ fontWeight: 'bold', marginRight: '6px' }}>{opt.key}.</span>
-                  {opt.text}
-                </button>
-              );
-            })}
-          </div>
-
-          {submitted && (
-            <div style={{ marginTop: '10px', fontSize: '12px', padding: '10px', backgroundColor: 'var(--bg-desktop)', borderRadius: '6px', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-              <strong>Explanation:</strong> {q.explain}
-            </div>
-          )}
+      <div className="motivation-card" style={{ marginBottom: '16px', background: 'linear-gradient(135deg, var(--success-color), #27ae60)' }}>
+        <div className="motivation-title" style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+          <Award size={18} />
+          <span>Chapter {currentChapter.id} Interview Pool</span>
         </div>
-      ))}
+        <p style={{ fontSize: '12px', margin: '4px 0 0 0', opacity: 0.9 }}>
+          Showing questions for the active concept and your completed topics.
+        </p>
+      </div>
 
-      {submitted ? (
-        <div style={{ textAlign: 'center', marginTop: '16px' }}>
-          <p style={{ fontWeight: '700', fontSize: '16px', color: score >= 4 ? 'var(--success-color)' : 'var(--accent-color)', marginBottom: '8px' }}>
-            Your Score: {score} / {questions.length} ({score >= 4 ? "50 LPA Ready!" : "Keep Reading!"})
+      {prepItems.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '24px', border: '1px dashed var(--border-color)', borderRadius: '8px' }}>
+          <HelpCircle size={24} style={{ color: 'var(--text-secondary)', marginBottom: '8px' }} />
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+            No interview questions compiled for this section yet.
           </p>
-          <button className="btn" onClick={resetQuiz}>Retake Exam</button>
         </div>
       ) : (
-        <button
-          className="btn btn-accent"
-          style={{ width: '100%', padding: '12px' }}
-          onClick={checkQuiz}
-          disabled={Object.keys(selectedAnswers).length < questions.length}
-        >
-          Submit Answers
-        </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {prepItems.map((item) => {
+            const isQRevealed = !!revealed[item.id];
+            const isQMastered = !!mastered[item.id];
+
+            return (
+              <div
+                key={item.id}
+                style={{
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  backgroundColor: 'var(--bg-page)',
+                  padding: '12px',
+                  position: 'relative',
+                  borderLeft: item.isCurrent ? '4px solid var(--accent-color)' : '4px solid var(--text-secondary)'
+                }}
+              >
+                {/* Meta details */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', fontSize: '10px' }}>
+                  <span style={{
+                    fontWeight: 'bold',
+                    color: item.isCurrent ? 'var(--accent-color)' : 'var(--text-secondary)',
+                    textTransform: 'uppercase'
+                  }}>
+                    {item.isCurrent ? 'Current Concept' : `Review: ${item.conceptTitle}`}
+                  </span>
+                  
+                  {isQMastered && (
+                    <span style={{ color: 'var(--success-color)', display: 'flex', alignItems: 'center', gap: '2px', fontWeight: 'bold' }}>
+                      <Check size={10} strokeWidth={3} />
+                      Mastered
+                    </span>
+                  )}
+                </div>
+
+                {/* Question */}
+                <p style={{ fontWeight: '600', fontSize: '13px', lineHeight: '1.4', color: 'var(--text-primary)', marginBottom: '10px' }}>
+                  {item.question}
+                </p>
+
+                {/* Answer reveal */}
+                {isQRevealed && (
+                  <div style={{
+                    marginTop: '8px',
+                    fontSize: '12px',
+                    lineHeight: '1.5',
+                    padding: '10px',
+                    backgroundColor: 'var(--code-bg)',
+                    borderRadius: '6px',
+                    color: 'var(--text-primary)',
+                    borderLeft: '2px solid var(--success-color)',
+                    marginBottom: '10px'
+                  }}>
+                    <strong>LPA Answer Checklist:</strong>
+                    <p style={{ marginTop: '4px' }}>{item.answer}</p>
+                  </div>
+                )}
+
+                {/* Action buttons */}
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    className="btn"
+                    style={{ fontSize: '11px', padding: '4px 10px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    onClick={() => toggleReveal(item.id)}
+                  >
+                    {isQRevealed ? <EyeOff size={11} /> : <Eye size={11} />}
+                    {isQRevealed ? 'Hide Answer' : 'Reveal Answer'}
+                  </button>
+
+                  <button
+                    className="btn"
+                    style={{
+                      fontSize: '11px',
+                      padding: '4px 10px',
+                      marginLeft: 'auto',
+                      backgroundColor: isQMastered ? 'rgba(39, 174, 96, 0.1)' : 'transparent',
+                      borderColor: isQMastered ? 'var(--success-color)' : 'var(--border-color)',
+                      color: isQMastered ? 'var(--success-color)' : 'var(--text-secondary)',
+                      fontWeight: isQMastered ? 'bold' : 'normal'
+                    }}
+                    onClick={() => toggleMastered(item.id)}
+                  >
+                    {isQMastered ? 'Mastered ✓' : 'Mark Mastered'}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );

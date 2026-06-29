@@ -72,6 +72,10 @@ export default function App() {
   };
 
   const handleNext = () => {
+    // Automatically mark the current concept as read when moving to the next page
+    if (!completedConcepts.includes(currentConcept.id)) {
+      setCompletedConcepts(prev => [...prev, currentConcept.id]);
+    }
     const idx = allConcepts.findIndex(c => c.id === currentConcept.id);
     if (idx < allConcepts.length - 1) {
       setCurrentConcept(allConcepts[idx + 1]);
@@ -202,7 +206,7 @@ export default function App() {
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                   <Eye size={14} />
-                  <span>Gotchas & Qs</span>
+                  <span>Interview Qs</span>
                 </div>
               </button>
               <button
@@ -229,7 +233,13 @@ export default function App() {
               {activeTab === 'visualizer' && renderVisualizer()}
               {activeTab === 'gotchas' && <GotchaSection concept={currentConcept} />}
               {activeTab === 'therapy' && <HatersCorner />}
-              {activeTab === 'quiz' && <InterviewPrep />}
+              {activeTab === 'quiz' && (
+                <InterviewPrep
+                  currentConcept={currentConcept}
+                  completedConcepts={completedConcepts}
+                  chapters={chapters}
+                />
+              )}
             </div>
           </div>
         </div>

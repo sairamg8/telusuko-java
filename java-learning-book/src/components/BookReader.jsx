@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, ChevronRight, CheckCircle, Circle } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function BookReader({
   concept,
@@ -7,14 +7,12 @@ export default function BookReader({
   onNext,
   hasPrev,
   hasNext,
-  isRead,
-  onToggleRead,
   fontSize
 }) {
   if (!concept) {
     return (
       <div className="book-reader" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: 'var(--text-secondary)' }}>Choose a Java concept from the left index index to begin.</p>
+        <p style={{ color: 'var(--text-secondary)' }}>Choose a Java concept from the left index to begin.</p>
       </div>
     );
   }
@@ -59,30 +57,22 @@ export default function BookReader({
           </div>
         )}
 
-        {/* Check off task */}
-        <div
-          onClick={() => onToggleRead(concept.id)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
+        {/* Gotchas rendered directly in the chapter itself */}
+        {concept.gotchas && concept.gotchas.map((g, idx) => (
+          <div key={idx} style={{
+            backgroundColor: 'var(--accent-bg)',
+            borderLeft: '4px solid var(--danger-color)',
             padding: '16px',
-            borderRadius: '8px',
-            backgroundColor: isRead ? 'rgba(39, 174, 96, 0.08)' : 'var(--code-bg)',
-            border: `1.5px solid ${isRead ? 'var(--success-color)' : 'var(--border-color)'}`,
-            cursor: 'pointer',
-            marginTop: '32px'
-          }}
-        >
-          {isRead ? (
-            <CheckCircle size={22} style={{ color: 'var(--success-color)' }} />
-          ) : (
-            <Circle size={22} style={{ color: 'var(--text-secondary)' }} />
-          )}
-          <span style={{ fontWeight: '600', color: isRead ? 'var(--success-color)' : 'var(--text-primary)' }}>
-            {isRead ? "Concept mastered! Mark as unread" : "Mark as read & count towards my 50 LPA progress"}
-          </span>
-        </div>
+            borderRadius: '6px',
+            marginTop: '24px',
+            marginBottom: '16px'
+          }}>
+            <div style={{ fontWeight: '700', color: 'var(--danger-color)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '15px', marginBottom: '8px' }}>
+              <span>⚠️ GOTCHA #{idx + 1}</span>
+            </div>
+            <div style={{ fontSize: '15px', color: 'var(--text-primary)', lineHeight: '1.6' }}>{g}</div>
+          </div>
+        ))}
 
         {/* Pagination Buttons */}
         <div className="book-pagination">
