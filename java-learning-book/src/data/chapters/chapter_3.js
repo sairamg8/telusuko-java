@@ -93,22 +93,40 @@ String greeting = (time < 18) ? "Good day" : "Good evening";`,
       id: 27,
       title: "Switch Statement",
       intro: "Clean alternative to deep if-else-if blocks.",
-      explanation: "Matches a variable against multiple constant values. Java supports switch on primitives (byte, short, char, int), String, and Enums. In modern Java, switch expressions return values.",
+      explanation: "1. Switch matches a single variable against multiple constant values and jumps to the matching `case` — far cleaner than a chain of `if-else-if` when testing one variable against many values.\n2. **Supported types**: `byte`, `short`, `char`, `int`, `String` (since Java 7), `Enum`, and wrapper types (`Integer`, `Character`). NOT supported: `float`, `double`, `long`, `boolean`.\n3. **Classic switch (pre-Java 14)**: uses `case X:` + `break`. Forgetting `break` causes fall-through — execution continues into the next case body automatically.\n4. **Modern switch expression (Java 14+)**: uses `case X ->` arrow syntax. No fall-through possible; each arm is isolated. Can also return a value: `int result = switch(x) { case 1 -> 10; default -> 0; };`.\n5. **`default` case**: optional but strongly recommended — runs when no case matches, like the `else` of a switch. Without it, unmatched values silently do nothing.\n6. In JS, `switch` has identical fall-through behavior — same bug risk. Both old Java and JS devs forget `break` for the same reason. Java's modern arrow syntax solves this; JS has no equivalent fix yet.\n7. Performance: classic switch compiles to a `tableswitch` JVM instruction (O(1) jump table) for dense integer cases — faster than an equivalent if-else-if chain which is O(N).",
       gotchas: [
-        "Forgot `break`? Execution falls through to the next case automatically! Always check case terminations."
+        "Forgetting `break` in classic switch causes **fall-through** — execution continues into the NEXT case body even if it doesn't match. This is the #1 switch bug. The modern `->` arrow syntax eliminates fall-through entirely.",
+        "Switch does NOT support `float`, `double`, or `long`. Float/double are excluded because floating-point comparisons are imprecise (0.1 + 0.2 ≠ 0.3), making exact constant matching unreliable. Long is excluded by design.",
+        "When switching on `String`, Java calls `.equals()` internally — but if the variable is `null`, you get a `NullPointerException`. Always null-check before a String switch."
       ],
       interviewQuestions: [
         {
           question: "Does switch support float or double in Java?",
-          answer: "No. Switch does not support float/double because floating-point precision issues make exact constant matching unreliable."
+          answer: "No. Float/double are excluded because floating-point arithmetic is imprecise — exact constant matching is unreliable (e.g. 0.1+0.2 ≠ 0.3 in binary). Long is also unsupported. Supported types: byte, short, char, int, String (Java 7+), Enum, and their wrappers."
+        },
+        {
+          question: "What is fall-through in a switch statement and how do you prevent it?",
+          answer: "Fall-through means when a matching case executes and there's no 'break', execution continues into the next case body regardless of whether that case matches. It causes silent bugs. Prevention options: always add 'break' at the end of each case (classic style), or use the Java 14+ arrow syntax `case X ->` which auto-breaks."
+        },
+        {
+          question: "What is the difference between a switch statement and a switch expression in Java?",
+          answer: "A switch statement executes code for a matching case (side effects). A switch expression (Java 14+) evaluates to a value that can be assigned: `int x = switch(day) { case MON -> 1; default -> 0; };`. Switch expressions use arrow syntax with no fall-through and must be exhaustive — every possible value must be covered or a default must exist."
         }
       ],
-      code: `int day = 2;
+      code: `// Classic switch — needs 'break' to stop fall-through:
+int day = 2;
 switch (day) {
-    case 1 -> System.out.println("Monday");
-    case 2 -> System.out.println("Tuesday"); // Modern syntax auto-breaks!
-    default -> System.out.println("Other day");
-}`,
+    case 1: System.out.println("Monday"); break;
+    case 2: System.out.println("Tuesday"); break; // break prevents fall-through
+    default: System.out.println("Other");
+}
+
+// Modern switch expression (Java 14+) — arrow syntax, no fall-through, returns value:
+String label = switch (day) {
+    case 1 -> "Monday";
+    case 2 -> "Tuesday";
+    default -> "Other";
+};`,
       visualizerType: "jvm"
     },
     {
@@ -225,19 +243,45 @@ do {
       id: 32,
       title: "Which Loop to Use",
       intro: "Right tool for the right job.",
-      explanation: "Use **For Loop** when size/iterations is fixed (like array bounds). Use **While Loop** when looping until a condition is met (like network reading). Use **Do-While** when a menu options prompt must display once before checking selection.",
+      explanation: "1. **For loop** — use when the number of iterations is known before the loop starts. Classic use: traversing arrays, running a fixed count of retries, generating a sequence of numbers. The `init; condition; update` header keeps all loop control in one line.\n2. **While loop** — use when the number of iterations is unknown and you check the exit condition FIRST. Classic use: reading from a stream until EOF, polling a queue, waiting for a user to type 'quit'. If the condition is false immediately, the body never runs (0 iterations).\n3. **Do-while loop** — use when you need to run the body AT LEAST once before checking the exit condition. Classic use: displaying a menu (must show once), validating user input (must read once before re-prompting).\n4. **Enhanced for-each** — use for read-only iteration over arrays or any `Iterable` (List, Set, etc.). Cleanest syntax when you don't need the index. Compiles to iterator calls under the hood.\n5. **Decision guide**: Is count known? → `for`. Is count unknown, check first? → `while`. Must run once? → `do-while`. Just reading a collection? → `for-each`.\n6. In JS, you have `for`, `while`, `do-while`, `for...of` (like Java for-each), and `for...in` (for object keys — no direct Java equivalent). Java's `for-each` maps exactly to JS `for...of`.\n7. At bytecode level, all loops compile to the same conditional jump instructions (`ifeq`, `goto`). There is no runtime performance difference — choose based on readability and intent.",
       gotchas: [
-        "Using the wrong loop can lead to off-by-one errors (index out of bounds) or messy counter initializations."
+        "Using `for` when a `while` is more natural leads to awkward counter initializations or dummy variables. If you can't fill all three `for` header parts naturally, switch to a `while`.",
+        "Using `do-while` when there's any chance you want zero iterations (empty list, null input) causes a bug — the body always runs once. For any 'might skip entirely' scenario, use `while` instead.",
+        "Using `for-each` when you need the index forces you to maintain a separate counter variable manually, which is error-prone. Use a classic indexed `for` loop when the index matters."
       ],
       interviewQuestions: [
         {
           question: "Which loop is most performant in Java?",
-          answer: "At bytecode level, there is minimal difference. The JVM compiles them similarly into conditional jumps. Choose for readability."
+          answer: "At bytecode level, there is no meaningful difference — all loops compile to conditional jump instructions (ifeq/goto). The JVM JIT compiler optimizes them identically. Choose based on readability and which matches the use case: known count → for, unknown count → while, guaranteed once → do-while."
+        },
+        {
+          question: "When would you use a do-while loop instead of a while loop?",
+          answer: "When the loop body must execute at least once before the exit condition is checked. Classic examples: reading and validating user input (must read once to have something to validate), displaying an interactive menu (must show once before asking to repeat). If there's any chance of zero iterations, use while instead."
+        },
+        {
+          question: "Can you always replace a while loop with a for loop?",
+          answer: "Syntactically yes — `for(; condition; )` is equivalent to `while(condition)`. But readability suffers when the iteration variable isn't managed in the for header. Use for when all three header parts (init, condition, update) are naturally present. Use while when the update logic is buried inside a complex body or doesn't exist as a simple increment."
         }
       ],
-      code: `// Iterate array: for loop.
-// Read stream: while loop.
-// Interactive CLI: do-while loop.`,
+      code: `int[] arr = {10, 20, 30, 40};
+
+// FOR — index known, fixed count:
+for (int i = 0; i < arr.length; i++) { System.out.println(arr[i]); }
+
+// WHILE — unknown count (read until sentinel):
+Scanner sc = new Scanner(System.in);
+String input = "";
+while (!input.equals("quit")) { input = sc.nextLine(); }
+
+// DO-WHILE — must display menu at least once:
+int choice;
+do {
+    System.out.println("1. Play  2. Quit");
+    choice = sc.nextInt();
+} while (choice != 2);
+
+// FOR-EACH — read-only iteration, cleanest syntax:
+for (int val : arr) { System.out.println(val); }`,
       visualizerType: "jvm"
     }
   ]
